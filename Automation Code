@@ -1,0 +1,1747 @@
+Option Explicit
+Const ReportName As String = "OUTSTANDING REPORT"
+Const Fol_GenerateReport As String = "D:\Discrepancy_OS_Report\Generate_Report\"
+Const Fol_No_Email As String = "D:\Discrepancy_OS_Report\No_Email Report\"
+Const Fol_EmailID As String = "D:\Discrepancy_OS_Report\Email_ID\"
+Const Fol_Letter As String = "D:\Discrepancy_OS_Report\Letter\"
+
+
+
+Private Sub Entry_Point()
+
+With Application
+  .StatusBar = "Your Assistant is busy working"
+  .ScreenUpdating = False
+  .DisplayAlerts = False
+  .Calculation = xlCalculationManual
+
+End With
+
+End Sub
+
+
+Private Sub Exit_Point()
+
+With Application
+  .StatusBar = ""
+  .ScreenUpdating = True
+  .DisplayAlerts = True
+  .Calculation = xlCalculationAutomatic
+  .CutCopyMode = False
+
+End With
+
+End Sub
+
+Sub Folder_Content_Delete()
+
+Dim folder As String
+
+folder = "D:\Discrepancy_OS_Report\Generate_Report\*.*"
+If Len(Dir$(folder)) > 0 Then
+    Kill folder
+
+End If
+
+End Sub
+
+Sub Folder_Content_Delete_Email()
+
+Dim folder As String
+
+folder = "D:\Discrepancy_OS_Report\No_Email Report\*.*"
+If Len(Dir$(folder)) > 0 Then
+    Kill folder
+
+End If
+
+End Sub
+
+Sub Esc_Riyadh_Escalation()
+
+Call Entry_Point
+
+Dim Newbook As Object
+
+Dim ol As Outlook.Application
+Dim mi As Outlook.MailItem
+Dim myToEmail As String
+Dim myCCEmail As String
+
+myToEmail = WorkingFile.Range("S6").Value
+myCCEmail = WorkingFile.Range("S7").Value
+
+ESCALATION_RIY.Select
+
+If Range("B5") = "" Then
+  
+    
+    Set ol = New Outlook.Application
+    Set mi = ol.CreateItem(olMailItem)
+ 
+ With mi
+    .Display
+    .To = myToEmail
+    .CC = myCCEmail & ";" & WorkingFile.Range("S8").Value
+    .Subject = "Refusal and Return for Documents more than 60 Days - No Records"
+    .Body = WorkingFile.Range("Z24").Value
+If WelcomePage.Range("B40") = "Production" Then
+     .Send
+Else
+      
+End If
+    
+ End With
+    MsgBox "Appreciation Mail sent to team", vbOKOnly, "No Records"
+    
+    Exit Sub
+    
+  Else
+
+
+    Call Folder_Content_Delete
+    Dim rng As Range
+
+    
+    
+    ESCALATION_RIY.Select
+    Range("B4").CurrentRegion.Copy
+    
+    Set rng = Range("B4").CurrentRegion
+    
+    Set Newbook = Workbooks.Add
+     Range("B3").PasteSpecial xlPasteAll
+     
+     Columns.AutoFit
+     Range("D1").Value = "OUTSTANDING MORE THAN 60 DAYS"
+     
+     With Range("D1").Font
+        .Name = "Basement Grotesque Roman"
+        .Size = 15
+        .Bold = True
+     End With
+     ActiveWindow.DisplayGridlines = False
+     ActiveWorkbook.Close True, Fol_GenerateReport & "Escalation_Riyadh"
+     
+     
+     
+    
+    Set ol = New Outlook.Application
+    Set mi = ol.CreateItem(olMailItem)
+With mi
+    .Display
+    .To = myToEmail
+    .CC = myCCEmail
+    .Subject = "Refusal and Return for Documents more than 60 Days"
+    .Body = WorkingFile.Range("y24").Value & vbNewLine
+    .HTMLBody = RangetoHTML(rng) & mi.HTMLBody
+    .Attachments.Add Fol_GenerateReport & "Escalation_Riyadh.xlsx"
+ 
+    If WelcomePage.Range("B40") = "Production" Then
+            .Send
+        Else
+    End If
+End With
+
+MsgBox "Mail sent to settlement team for Return of documents!", vbOKOnly, "Information"
+
+End If
+
+Call Exit_Point
+End Sub
+
+Sub Generate_MIS()
+
+Call Entry_Point
+
+MIS_File.Visible = xlSheetVisible
+
+MIS_Report.Visible = xlSheetVisible
+
+
+MIS_File.Select
+
+Dim LastRow As Integer
+
+
+LastRow = Range("L" & Rows.Count).End(xlUp).Row + 1
+
+
+Range("L" & LastRow) = Range("b2").Value
+Range("M" & LastRow) = Range("C5").Value
+Range("N" & LastRow) = Range("C6").Value
+Range("O" & LastRow) = Range("C7").Value
+Range("P" & LastRow) = Range("C8").Value
+Range("Q" & LastRow) = Range("C9").Value
+Range("R" & LastRow) = Range("C10").Value
+
+
+
+Range("MIS[#All]").Select
+    ActiveSheet.Range("MIS[#All]").RemoveDuplicates Columns:=Array(1, 2, 3, 4, 5, _
+        6, 7), Header:=xlYes
+        
+
+        
+Range("J3").Value = Range("L" & (LastRow - 2))
+Range("J2").Value = Range("L" & (LastRow - 5))
+
+Call Exit_Point
+End Sub
+
+Sub Super_Escalation()
+
+Call Entry_Point
+Call Folder_Content_Delete
+
+Dim Newbook As Object
+Dim ol As Outlook.Application
+Dim mi As Outlook.MailItem
+Dim myToEmail As String
+Dim myCCEmail As String
+
+myToEmail = WorkingFile.Range("S8").Value
+myCCEmail = WorkingFile.Range("S7").Value & ";" & WorkingFile.Range("T7").Value & ";" & WorkingFile.Range("U7").Value
+
+Dim insp As Outlook.Inspector
+Dim Doc As Word.Document
+Dim msgText As String
+
+SUPER_ESC_RIY.Select
+
+If Range("B5") = "" Then
+    GoTo Jeddah_Start
+    
+        
+Else
+    
+    'RIYADH FILE CREATION
+    
+    SUPER_ESC_RIY.Select
+    Range("B4").CurrentRegion.Copy
+    
+    Set Newbook = Workbooks.Add
+     Range("B3").PasteSpecial xlPasteAll
+     
+     Columns.AutoFit
+     Range("D1").Value = "OUTSTANDING MORE THAN 70 DAYS - Riyadh"
+     
+     With Range("D1").Font
+        .Name = "Basement Grotesque Roman"
+        .Size = 15
+        .Bold = True
+     End With
+     ActiveWindow.DisplayGridlines = False
+     ActiveWorkbook.Close True, Fol_GenerateReport & "Super_Escalation_Riyadh"
+   
+End If
+    
+    'JEDDAH FILE CREATION
+Jeddah_Start:
+    SUPER_ESC_JED.Select
+
+If Range("B5") = "" Then
+    GoTo Dammam_Start
+            
+Else
+    
+    SUPER_ESC_JED.Select
+    Range("B4").CurrentRegion.Copy
+    
+    Set Newbook = Workbooks.Add
+     Range("B3").PasteSpecial xlPasteAll
+     
+     Columns.AutoFit
+     Range("D1").Value = "OUTSTANDING MORE THAN 70 DAYS - Jeddah"
+     
+     With Range("D1").Font
+        .Name = "Basement Grotesque Roman"
+        .Size = 15
+        .Bold = True
+     End With
+     ActiveWindow.DisplayGridlines = False
+     ActiveWorkbook.Close True, Fol_GenerateReport & "Super_Escalation_Jeddah"
+     
+
+End If
+     
+    'DAMMAM FILE CREATION
+Dammam_Start:
+    SUPER_ESC_DAM.Select
+
+If Range("B5") = "" Then
+    GoTo No_Record_Email
+Else
+
+    SUPER_ESC_DAM.Select
+    Range("B4").CurrentRegion.Copy
+    
+    Set Newbook = Workbooks.Add
+     Range("B3").PasteSpecial xlPasteAll
+     
+     Columns.AutoFit
+     Range("D1").Value = "OUTSTANDING MORE THAN 70 DAYS - Dammam"
+     
+     With Range("D1").Font
+        .Name = "Basement Grotesque Roman"
+        .Size = 15
+        .Bold = True
+     End With
+     ActiveWindow.DisplayGridlines = False
+     ActiveWorkbook.Close True, Fol_GenerateReport & "Super_Escalation_Dammam"
+      
+End If
+
+
+No_Record_Email:
+    All_Super_Escalation.Select
+    
+If Range("B5") = "" Then
+    
+    
+    Set ol = New Outlook.Application
+    Set mi = ol.CreateItem(olMailItem)
+    
+    With mi
+        .Display
+        .To = myToEmail
+        .CC = myCCEmail
+        .Subject = "No Records - Escalation Report for document greater than 70 Days"
+        Set insp = mi.GetInspector
+        Set Doc = insp.WordEditor
+        msgText = WorkingFile.Range("AA24").Value
+        
+        MIS_Report.ChartObjects("Chart 1").Chart.ChartArea.Copy
+        Doc.Range(0, 0).Paste
+        Doc.Range(0, 0).InsertBefore msgText & vbNewLine & vbNewLine
+         
+    If WelcomePage.Range("B40") = "Production" Then
+        .Send
+    Else
+    
+    End If
+        
+        
+    End With
+Exit Sub
+    
+End If
+
+Set ol = New Outlook.Application
+Set mi = ol.CreateItem(olMailItem)
+    
+
+    With mi
+        .Display
+        .To = myToEmail
+        .CC = myCCEmail
+        .Subject = "Escalation Report for document greater than 70 Days"
+        Set insp = mi.GetInspector
+        Set Doc = insp.WordEditor
+        msgText = WorkingFile.Range("AB24").Value
+        
+        MIS_Report.ChartObjects("Chart 1").Chart.ChartArea.Copy
+        Doc.Range(0, 0).Paste
+        Doc.Range(0, 0).InsertBefore msgText & vbNewLine & vbNewLine
+        
+        Dim file As String
+        file = Dir("D:\Discrepancy_OS_Report\Generate_Report\*.xls?")
+
+        Do While file <> ""
+        
+        .Attachments.Add Fol_GenerateReport & file
+        
+        file = Dir()
+        
+        Loop
+
+        'mi.Send
+    End With
+    
+
+
+Call Exit_Point
+
+End Sub
+
+Sub Esc_Dammam_Escalation()
+
+Call Entry_Point
+
+Dim Newbook As Object
+
+Dim ol As Outlook.Application
+Dim mi As Outlook.MailItem
+Dim myToEmail As String
+Dim myCCEmail As String
+
+myToEmail = WorkingFile.Range("S6").Value
+myCCEmail = WorkingFile.Range("S7").Value & ";" & WorkingFile.Range("S8").Value
+
+ESCALATION_DAM.Select
+
+If Range("B5") = "" Then
+  
+    
+    Set ol = New Outlook.Application
+    Set mi = ol.CreateItem(olMailItem)
+ 
+ With mi
+    .Display
+    .To = myToEmail
+    .CC = myCCEmail & ";" & WorkingFile.Range("S8").Value
+    .Subject = "Refusal and Return for Documents more than 60 Days - No Records"
+    .Body = WorkingFile.Range("Z24").Value
+If WelcomePage.Range("B40") = "Production" Then
+     .Send
+Else
+      
+End If
+    
+ End With
+    MsgBox "Appreciation Mail sent to team", vbOKOnly, "No Records"
+    
+    Exit Sub
+    
+  Else
+
+
+    Call Folder_Content_Delete
+    Dim rng As Range
+
+    
+    
+    ESCALATION_DAM.Select
+    Range("B4").CurrentRegion.Copy
+    
+    Set rng = Range("B4").CurrentRegion
+    
+    Set Newbook = Workbooks.Add
+     Range("B3").PasteSpecial xlPasteAll
+     
+     Columns.AutoFit
+     Range("D1").Value = "OUTSTANDING MORE THAN 60 DAYS"
+     
+     With Range("D1").Font
+        .Name = "Basement Grotesque Roman"
+        .Size = 15
+        .Bold = True
+     End With
+     ActiveWindow.DisplayGridlines = False
+     ActiveWorkbook.Close True, Fol_GenerateReport & "Escalation_Dammam"
+     
+     
+     
+    
+    Set ol = New Outlook.Application
+    Set mi = ol.CreateItem(olMailItem)
+With mi
+    .Display
+    .To = myToEmail
+    .CC = myCCEmail
+    .Subject = "Refusal and Return for Documents more than 60 Days"
+    .Body = WorkingFile.Range("y24").Value & vbNewLine
+    .HTMLBody = RangetoHTML(rng) & mi.HTMLBody
+    .Attachments.Add Fol_GenerateReport & "Escalation_Dammam.xlsx"
+ 
+    If WelcomePage.Range("B40") = "Production" Then
+            .Send
+        Else
+    End If
+End With
+
+MsgBox "Mail sent to settlement team for Return of documents!", vbOKOnly, "Information"
+
+End If
+
+Call Exit_Point
+End Sub
+
+
+Sub Esc_Jeddah_Escalation()
+
+Call Entry_Point
+
+Dim Newbook As Object
+
+Dim ol As Outlook.Application
+Dim mi As Outlook.MailItem
+Dim myToEmail As String
+Dim myCCEmail As String
+
+myToEmail = WorkingFile.Range("S6").Value
+myCCEmail = WorkingFile.Range("S7").Value & ";" & WorkingFile.Range("S8").Value
+
+ESCALATION_JED.Select
+
+If Range("B5") = "" Then
+  
+    
+    Set ol = New Outlook.Application
+    Set mi = ol.CreateItem(olMailItem)
+ 
+ With mi
+    .Display
+    .To = myToEmail
+    .CC = myCCEmail & ";" & WorkingFile.Range("S8").Value
+    .Subject = "Refusal and Return for Documents more than 60 Days - No Records"
+    .Body = WorkingFile.Range("Z24").Value
+If WelcomePage.Range("B40") = "Production" Then
+     .Send
+Else
+      
+End If
+    
+ End With
+    MsgBox "Appreciation Mail sent to team", vbOKOnly, "No Records"
+    
+    Exit Sub
+    
+  Else
+
+
+    Call Folder_Content_Delete
+    Dim rng As Range
+
+    
+    
+    ESCALATION_JED.Select
+    Range("B4").CurrentRegion.Copy
+    
+    Set rng = Range("B4").CurrentRegion
+    
+    Set Newbook = Workbooks.Add
+     Range("B3").PasteSpecial xlPasteAll
+     
+     Columns.AutoFit
+     Range("D1").Value = "OUTSTANDING MORE THAN 60 DAYS"
+     
+     With Range("D1").Font
+        .Name = "Basement Grotesque Roman"
+        .Size = 15
+        .Bold = True
+     End With
+     ActiveWindow.DisplayGridlines = False
+     ActiveWorkbook.Close True, Fol_GenerateReport & "Escalation_Jeddah"
+     
+     
+     
+    
+    Set ol = New Outlook.Application
+    Set mi = ol.CreateItem(olMailItem)
+With mi
+    .Display
+    .To = myToEmail
+    .CC = myCCEmail
+    .Subject = "Refusal and Return for Documents more than 60 Days"
+    .Body = WorkingFile.Range("y24").Value & vbNewLine
+    .HTMLBody = RangetoHTML(rng) & mi.HTMLBody
+    .Attachments.Add Fol_GenerateReport & "Escalation_Jeddah.xlsx"
+ 
+    If WelcomePage.Range("B40") = "Production" Then
+            .Send
+        Else
+    End If
+End With
+
+MsgBox "Mail sent to settlement team for Return of documents!", vbOKOnly, "Information"
+
+End If
+
+Call Exit_Point
+End Sub
+
+
+Sub NE_Riyadh_No_Email()
+
+If Range("H1").Value = 0 Then
+
+    VBA.MsgBox "All Emails are present. No Need to send this Email!", vbExclamation, "Message"
+
+    Exit Sub
+
+End If
+
+
+Dim myToEmail As String
+Dim myCCEmail As String
+myToEmail = WorkingFile.Range("S6").Value
+myCCEmail = WorkingFile.Range("S7").Value
+Call Entry_Point
+Call Folder_Content_Delete_Email
+
+Dim Newbook As Object
+
+Dim ol As Outlook.Application
+Dim mi As Outlook.MailItem
+
+Dim rng As Range
+
+No_Email_Riyadh.Visible = xlSheetVisible
+
+
+No_Email_Riyadh.Select
+Range("A1").CurrentRegion.Copy
+
+Set rng = Range("A1").CurrentRegion
+
+Set Newbook = Workbooks.Add
+ Range("B3").PasteSpecial xlPasteAll
+ 
+ Columns.AutoFit
+ Range("C1").Value = "Email ID's"
+ 
+ With Range("C1").Font
+    .Name = "Basement Grotesque Roman"
+    .Size = 15
+    .Bold = True
+ End With
+ ActiveWindow.DisplayGridlines = False
+ ActiveWorkbook.Close True, Fol_No_Email & "Riyadh_Email_ids"
+ 
+ 
+ 
+
+Set ol = New Outlook.Application
+Set mi = ol.CreateItem(olMailItem)
+
+With mi
+    .Display
+   
+    .To = myToEmail
+    .CC = myCCEmail
+    .Subject = "Email Id's Required - Riyadh Customer"
+    .HTMLBody = WorkingFile.Range("X24").Value & vbNewLine & RangetoHTML(rng) & mi.HTMLBody
+    .Attachments.Add Fol_No_Email & "Riyadh_Email_ids.xlsx"
+    
+    
+If WelcomePage.Range("B40") = "Production" Then
+    .Send
+Else
+    
+End If
+
+    
+End With
+
+Call Folder_Content_Delete_Email
+Call Exit_Point
+
+No_Email_Riyadh.Visible = xlSheetHidden
+RIY_LT_60DAYS.Select
+Range("A1").Select
+
+End Sub
+
+Sub NE_Jeddah_No_Email()
+
+If Range("H1").Value = 0 Then
+
+    VBA.MsgBox "All Emails are present. No Need to send this Email!", vbExclamation, "Message"
+
+    Exit Sub
+
+End If
+
+Dim myToEmail As String
+Dim myCCEmail As String
+myToEmail = WorkingFile.Range("T6").Value
+myCCEmail = WorkingFile.Range("T7").Value
+
+Call Entry_Point
+Call Folder_Content_Delete_Email
+
+Dim Newbook As Object
+
+Dim ol As Outlook.Application
+Dim mi As Outlook.MailItem
+
+Dim rng As Range
+
+No_Email_Jeddah.Visible = xlSheetVisible
+
+
+No_Email_Jeddah.Select
+Range("A1").CurrentRegion.Copy
+
+Set rng = Range("A1").CurrentRegion
+
+Set Newbook = Workbooks.Add
+ Range("B3").PasteSpecial xlPasteAll
+ 
+ Columns.AutoFit
+ Range("C1").Value = "Email ID's"
+ 
+ With Range("C1").Font
+    .Name = "Basement Grotesque Roman"
+    .Size = 15
+    .Bold = True
+ End With
+ ActiveWindow.DisplayGridlines = False
+ ActiveWorkbook.Close True, Fol_No_Email & "Jeddah_Email_ids"
+ 
+ 
+ 
+
+Set ol = New Outlook.Application
+Set mi = ol.CreateItem(olMailItem)
+With mi
+    .Display
+    .To = myToEmail
+    .CC = myCCEmail
+    .Subject = "Email Id's Required - Jeddah Customer"
+    .HTMLBody = WorkingFile.Range("X24").Value & vbNewLine & RangetoHTML(rng) & mi.HTMLBody
+    .Attachments.Add Fol_No_Email & "Jeddah_Email_ids.xlsx"
+    
+    
+    If WelcomePage.Range("B40") = "Production" Then
+        .Send
+    Else
+    End If
+        
+ 
+    
+End With
+
+Call Folder_Content_Delete_Email
+Call Exit_Point
+
+No_Email_Jeddah.Visible = xlSheetHidden
+JED_LT_60DAYS.Select
+Range("A1").Select
+
+End Sub
+
+Sub NE_Dammam_No_Email()
+
+If Range("H1").Value = 0 Then
+
+    VBA.MsgBox "All Emails are present. No Need to send this Email!", vbExclamation, "Message"
+
+    Exit Sub
+
+End If
+
+Dim myToEmail As String
+Dim myCCEmail As String
+myToEmail = WorkingFile.Range("U6").Value
+myCCEmail = WorkingFile.Range("U7").Value
+
+Call Entry_Point
+Call Folder_Content_Delete_Email
+
+Dim Newbook As Object
+
+Dim ol As Outlook.Application
+Dim mi As Outlook.MailItem
+
+Dim rng As Range
+
+No_Email_Dammam.Visible = xlSheetVisible
+
+
+No_Email_Dammam.Select
+Range("A1").CurrentRegion.Copy
+
+Set rng = Range("A1").CurrentRegion
+
+Set Newbook = Workbooks.Add
+ Range("B3").PasteSpecial xlPasteAll
+ 
+ Columns.AutoFit
+ Range("C1").Value = "Email ID's"
+ 
+ With Range("C1").Font
+    .Name = "Basement Grotesque Roman"
+    .Size = 15
+    .Bold = True
+ End With
+ ActiveWindow.DisplayGridlines = False
+ ActiveWorkbook.Close True, Fol_No_Email & "Dammam_Email_ids"
+ 
+ 
+ 
+
+Set ol = New Outlook.Application
+Set mi = ol.CreateItem(olMailItem)
+With mi
+    .Display
+    .To = myToEmail
+    .CC = myCCEmail
+    .Subject = "Email Id's Required - Dammam Customer"
+    .HTMLBody = WorkingFile.Range("X24").Value & vbNewLine & RangetoHTML(rng) & mi.HTMLBody
+    .Attachments.Add Fol_No_Email & "Dammam_Email_ids.xlsx"
+    
+    
+If WelcomePage.Range("B40") = "Production" Then
+    .Send
+Else
+
+End If
+    
+End With
+
+Call Folder_Content_Delete_Email
+Call Exit_Point
+
+No_Email_Dammam.Visible = xlSheetHidden
+DAM_LT_60DAYS.Select
+Range("A1").Select
+
+End Sub
+
+
+
+Sub Generate_File_Riyadh()
+
+
+Call Entry_Point
+Call Folder_Content_Delete
+
+Dim i As Long
+Dim LastRow As Long
+Dim myValue As Double
+Const StarRow As Byte = 2
+Dim Newbook As Object
+
+LastRow = Unique_List_Riyadh.Range("A" & (StarRow - 1)).End(xlDown).Row
+
+If LastRow = 2 Then
+    MsgBox "No Records Found to send Email", vbInformation, "Message"
+    Exit Sub
+End If
+
+Unique_List_Riyadh.Visible = xlSheetVisible
+
+
+Unique_List_Riyadh.Select
+
+For i = StarRow To LastRow
+Unique_List_Riyadh.Select
+myValue = Range("A" & i).Value
+
+
+    
+    RIY_LT_60DAYS.Select
+    Range("RiyadhLessThan60").Select
+    Range("D6").Activate
+    
+  ActiveSheet.ListObjects("RiyadhLessThan60").Range.AutoFilter _
+  Field:=1, Criteria1:=myValue
+  
+    Range("B5").CurrentRegion.Copy
+
+
+Set Newbook = Workbooks.Add
+ Range("B3").PasteSpecial xlPasteAll
+ Columns.AutoFit
+ Range("D1").Value = ReportName
+ 
+ With Range("D1").Font
+    .Name = "Basement Grotesque Roman"
+    .Size = 20
+    .Bold = True
+ End With
+ ActiveWindow.DisplayGridlines = False
+ ActiveWorkbook.Close True, Fol_GenerateReport & myValue
+ 
+
+Next i
+
+    RIY_LT_60DAYS.Select
+    Range("RiyadhLessThan60").Select
+    Range("D6").Activate
+    Selection.AutoFilter
+    Selection.AutoFilter
+
+Call Exit_Point
+Unique_List_Riyadh.Visible = xlSheetHidden
+
+RIY_LT_60DAYS.Range("B5").Select
+
+MsgBox "All Customer files has been generated sucessfully", vbOKOnly, "Message"
+
+
+
+End Sub
+
+Private Sub Generate_File_Adhoc()
+
+Dim myValue As Double
+
+
+If IsNumeric(Range("C2").Value) Then
+    If Len(Range("C2").Value) <> 7 Then
+        MsgBox "Please Enter 7 Characters Numeric ID Value", vbCritical
+        
+        Exit Sub
+    End If
+Else
+    MsgBox "Please Enter Numeric Value", vbCritical
+    
+    Exit Sub
+
+End If
+
+If Range("C2").Value = "" Then
+Range("G2").Value
+
+End If
+
+myValue = Range("C2").Value
+
+Call Entry_Point
+Call Folder_Content_Delete
+
+   
+Range("D5").Activate
+    
+
+ActiveSheet.ListObjects("All_Data").Range.AutoFilter _
+Field:=1, Criteria1:=myValue
+
+
+Call Exit_Point
+End Sub
+
+
+
+
+Sub Generate_File_Jeddah()
+
+Call Entry_Point
+Call Folder_Content_Delete
+
+Dim i As Long
+Dim LastRow As Long
+Dim myValue As Double
+Const StarRow As Byte = 2
+Dim Newbook As Object
+
+LastRow = Unique_List_Jeddah.Range("A" & (StarRow - 1)).End(xlDown).Row
+
+If LastRow = 2 Then
+    MsgBox "No Records Found to send Email", vbInformation, "Message"
+    Exit Sub
+End If
+
+Unique_List_Jeddah.Visible = xlSheetVisible
+
+
+Unique_List_Jeddah.Select
+
+For i = StarRow To LastRow
+Unique_List_Jeddah.Select
+myValue = Range("A" & i).Value
+
+
+    
+    JED_LT_60DAYS.Select
+    Range("JeddahLessThan60").Select
+    Range("D6").Activate
+    
+  ActiveSheet.ListObjects("JeddahLessThan60").Range.AutoFilter _
+  Field:=1, Criteria1:=myValue
+  
+    Range("B5").CurrentRegion.Copy
+
+
+Set Newbook = Workbooks.Add
+ Range("B3").PasteSpecial xlPasteAll
+ Columns.AutoFit
+ Range("D1").Value = ReportName
+ 
+ With Range("D1").Font
+    .Name = "Basement Grotesque Roman"
+    .Size = 20
+    .Bold = True
+ End With
+ ActiveWindow.DisplayGridlines = False
+ ActiveWorkbook.Close True, Fol_GenerateReport & myValue
+ 
+
+Next i
+
+    JED_LT_60DAYS.Select
+    Range("JeddahLessThan60").Select
+    Range("D6").Activate
+    Selection.AutoFilter
+    Selection.AutoFilter
+
+Call Exit_Point
+Unique_List_Jeddah.Visible = xlSheetHidden
+
+JED_LT_60DAYS.Range("B5").Select
+MsgBox "All Customer files has been generated sucessfully", vbOKOnly, "Message"
+
+
+End Sub
+
+Sub Generate_File_Dammam()
+
+Call Entry_Point
+Call Folder_Content_Delete
+
+Dim i As Long
+Dim LastRow As Long
+Dim myValue As Double
+Const StarRow As Byte = 2
+Dim Newbook As Object
+
+LastRow = Unique_List_Dammam.Range("A" & (StarRow - 1)).End(xlDown).Row
+
+If LastRow = 2 Then
+    MsgBox "No Records Found to send Email", vbInformation, "Message"
+    Exit Sub
+End If
+
+Unique_List_Dammam.Visible = xlSheetVisible
+
+
+Unique_List_Dammam.Select
+
+For i = StarRow To LastRow
+Unique_List_Dammam.Select
+myValue = Range("A" & i).Value
+
+
+    
+    DAM_LT_60DAYS.Select
+    Range("DammamLessThan60").Select
+    Range("D6").Activate
+    
+  ActiveSheet.ListObjects("DammamLessThan60").Range.AutoFilter _
+  Field:=1, Criteria1:=myValue
+  
+    Range("B5").CurrentRegion.Copy
+
+
+Set Newbook = Workbooks.Add
+ Range("B3").PasteSpecial xlPasteAll
+ Columns.AutoFit
+ Range("D1").Value = ReportName
+ 
+ With Range("D1").Font
+    .Name = "Basement Grotesque Roman"
+    .Size = 20
+    .Bold = True
+ End With
+ ActiveWindow.DisplayGridlines = False
+ ActiveWorkbook.Close True, Fol_GenerateReport & myValue
+ 
+
+Next i
+
+    DAM_LT_60DAYS.Select
+    Range("DammamLessThan60").Select
+    Range("D6").Activate
+    Selection.AutoFilter
+    Selection.AutoFilter
+
+Call Exit_Point
+Unique_List_Dammam.Visible = xlSheetHidden
+
+DAM_LT_60DAYS.Range("B5").Select
+MsgBox "All Customer files has been generated sucessfully", vbOKOnly, "Message"
+
+
+End Sub
+
+Sub Visible_Riyadh_Files()
+
+Call Entry_Point
+
+Call Visible_All_Files
+
+Dim Sh As Worksheet
+For Each Sh In ThisWorkbook.Worksheets
+
+     If Sh.CodeName = "RIY_LT_60DAYS" Or Sh.CodeName = "ESCALATION_RIY" Then
+     Sh.Visible = xlSheetVisible
+     
+        
+     Else
+     Sh.Visible = xlSheetHidden
+     
+     
+     End If
+    
+Next Sh
+
+RIY_LT_60DAYS.Select
+Range("A1").Select
+
+Call Exit_Point
+
+End Sub
+
+Sub Visible_Super_Escalation_Files()
+
+Call Entry_Point
+
+Call Visible_All_Files
+
+Dim Sh As Worksheet
+For Each Sh In ThisWorkbook.Worksheets
+
+     If Sh.CodeName = "SUPER_ESC_DAM" Or Sh.CodeName = "SUPER_ESC_RIY" Or Sh.CodeName = "SUPER_ESC_JED" Or Sh.CodeName = "All_Super_Escalation" _
+     Or Sh.CodeName = "MIS_File" Or Sh.CodeName = "MIS_Report" Then
+     Sh.Visible = xlSheetVisible
+     
+        
+     Else
+     Sh.Visible = xlSheetHidden
+     
+     
+     End If
+    
+Next Sh
+
+All_Super_Escalation.Select
+Range("A1").Select
+
+Call Exit_Point
+
+End Sub
+
+Sub Visible_Jeddah_Files()
+Call Entry_Point
+
+Dim Sh As Worksheet
+
+Call Visible_All_Files
+
+For Each Sh In ThisWorkbook.Worksheets
+
+     If Sh.CodeName = "JED_LT_60DAYS" Or Sh.CodeName = "ESCALATION_JED" Then
+     Sh.Visible = xlSheetVisible
+     
+        
+     Else
+     Sh.Visible = xlSheetHidden
+     
+     
+     End If
+    
+Next Sh
+
+JED_LT_60DAYS.Select
+Range("A1").Select
+
+Call Exit_Point
+End Sub
+
+Sub Visible_Dammam_Files()
+
+Call Entry_Point
+Call Visible_All_Files
+
+Dim Sh As Worksheet
+For Each Sh In ThisWorkbook.Worksheets
+
+     If Sh.CodeName = "DAM_LT_60DAYS" Or Sh.CodeName = "ESCALATION_DAM" Then
+     Sh.Visible = xlSheetVisible
+     
+        
+     Else
+     Sh.Visible = xlSheetHidden
+     
+     
+     End If
+    
+Next Sh
+
+DAM_LT_60DAYS.Select
+Range("A1").Select
+
+Call Exit_Point
+
+End Sub
+
+Sub Visible_All_Files()
+Call Entry_Point
+Dim Sh As Worksheet
+For Each Sh In ThisWorkbook.Worksheets
+
+     
+     Sh.Visible = True
+     
+     
+Next Sh
+
+RIY_LT_60DAYS.Select
+Range("A1").Select
+
+Call Exit_Point
+End Sub
+
+Sub Visible_Main_File()
+
+Call Entry_Point
+Dim Sh As Worksheet
+For Each Sh In ThisWorkbook.Worksheets
+
+     If Sh.CodeName = "WelcomePage" Or Sh.CodeName = "DAM_LT_60DAYS" Or Sh.CodeName = "JED_LT_60DAYS" Or Sh.CodeName = "RIY_LT_60DAYS" Then
+     Sh.Visible = xlSheetVisible
+     
+        
+     Else
+     Sh.Visible = xlSheetHidden
+     
+     
+     End If
+    
+Next Sh
+
+WelcomePage.Select
+Range("A1").Select
+
+Call Exit_Point
+
+End Sub
+
+
+Sub Visible_All_Data_File()
+
+Call Entry_Point
+Dim Sh As Worksheet
+For Each Sh In ThisWorkbook.Worksheets
+
+     If Sh.CodeName = "All_Data" Then
+     Sh.Visible = xlSheetVisible
+     
+        
+     Else
+     Sh.Visible = xlSheetHidden
+     
+     
+     End If
+    
+Next Sh
+
+Call Exit_Point
+End Sub
+
+Sub Email_Riyadh_Customer_LT60()
+
+Dim CH As String
+Dim myToEmail As String
+Dim myCCEmail As String
+myToEmail = WorkingFile.Range("S6").Value
+myCCEmail = WorkingFile.Range("S7").Value
+
+If Range("A3") Then
+
+    CH = WorkingFile.Range("S8").Value
+Else
+
+    CH = ""
+
+End If
+
+
+If Range("B1") Then GoTo Available_Email
+RIY_LT_60DAYS.Select
+
+If Range("H1").Value <> 0 Then
+
+    VBA.MsgBox "(" & Range("H1").Value & ") - EMAIL ID'S NOT FOUND, UPDATE BEFORE SENDING MAILS!!", vbExclamation, "Check Emails"
+
+    Exit Sub
+
+End If
+
+Available_Email:
+
+If Unique_List_Riyadh.Range("A2") = "" Then
+     
+    
+    Dim ol As Outlook.Application
+    Dim mi As Outlook.MailItem
+    Dim rng As Range
+    
+    No_Email_Riyadh.Visible = xlSheetVisible
+    No_Email_Riyadh.Select
+    Set rng = Range("A1").CurrentRegion
+    Set ol = New Outlook.Application
+    Set mi = ol.CreateItem(olMailItem)
+    With mi
+        .Display
+        .To = myToEmail
+        .CC = myCCEmail & ";" & CH
+        .Subject = "No Email-ID's available for Discrepancy Report "
+        .HTMLBody = WorkingFile.Range("Y25").Value & vbNewLine & RangetoHTML(rng) & mi.HTMLBody
+        
+                
+    If WelcomePage.Range("B40") = "Production" Then
+        .Send
+    Else
+        '.Close olDiscard
+    End If
+    
+    End With
+
+RIY_LT_60DAYS.Select
+
+Exit Sub
+
+End If
+
+
+Call Entry_Point
+
+Dim i As Long
+Dim LastRow As Long
+Dim myValue As Double
+Dim myName As String
+Const StarRow As Byte = 2
+'Dim ol As Outlook.Application
+'Dim mi As Outlook.MailItem
+Dim Doc As Word.Document
+'Dim rng As Range
+Dim shp As InlineShape
+
+LastRow = Unique_List_Riyadh.Range("A" & (StarRow - 1)).End(xlDown).Row
+
+Unique_List_Riyadh.Visible = xlSheetVisible
+
+
+Unique_List_Riyadh.Select
+
+For i = StarRow To LastRow
+    Unique_List_Riyadh.Select
+    myValue = Range("A" & i).Value
+    myName = Range("B" & i).Value
+    Set ol = New Outlook.Application
+    Set mi = ol.CreateItem(olMailItem)
+    
+With mi
+    .Display
+    Set Doc = mi.GetInspector.WordEditor
+    .To = Range("C" & i).Value
+    .CC = myToEmail
+    .Subject = "Discrepancy Outstanding Report - " & myName
+
+On Error GoTo ErrorHandle
+    .Attachments.Add Fol_GenerateReport & myValue & ".xlsx"
+    .Attachments.Add Fol_Letter & "ACCEPTANCE LETTER.docx"
+    .Attachments.Add Fol_Letter & "REFUSAL LETTER.docx"
+End With
+    
+    Set shp = Doc.Range(0, 0).InlineShapes.AddPicture(Fol_Letter & "outstanding letter.png")
+    
+    
+    shp.LockAspectRatio = msoTrue
+    shp.Width = 1000
+
+    If WelcomePage.Range("B40") = "Production" Then
+    mi.Send
+    Else
+        '.Close olDiscard
+    End If
+    
+Next i
+
+Unique_List_Riyadh.Visible = xlSheetHidden
+
+Call Exit_Point
+
+RIY_LT_60DAYS.Select
+
+If Range("B1") And Range("H1") <> 0 Then
+Call Entry_Point
+    No_Email_Riyadh.Visible = xlSheetVisible
+    No_Email_Riyadh.Select
+       
+    Set rng = Range("A1").CurrentRegion
+    Set ol = New Outlook.Application
+    Set mi = ol.CreateItem(olMailItem)
+    With mi
+        .Display
+        .To = myToEmail
+        .CC = myCCEmail & ";" & CH
+        .Subject = "Reminder for Email Id's"
+        .HTMLBody = WorkingFile.Range("X25").Value & vbNewLine & RangetoHTML(rng) & mi.HTMLBody
+        
+                
+    If WelcomePage.Range("B40") = "Production" Then
+        .Send
+    Else
+        '.Close olDiscard
+    End If
+    
+    End With
+
+End If
+
+Call Exit_Point
+
+RIY_LT_60DAYS.Select
+
+Exit Sub
+
+ErrorHandle:
+    
+    mi.Close olDiscard
+    Unique_List_Riyadh.Visible = xlSheetHidden
+    Call Exit_Point
+    RIY_LT_60DAYS.Select
+    MsgBox "Please generate Files First Before Sending Mails", vbCritical, "Message!"
+
+End Sub
+
+
+
+Sub Email_Dammam_Customer_LT60()
+
+Dim CH As String
+Dim myToEmail As String
+Dim myCCEmail As String
+myToEmail = WorkingFile.Range("U6").Value
+myCCEmail = WorkingFile.Range("U7").Value
+
+If Range("A3") Then
+
+    CH = WorkingFile.Range("S8").Value
+Else
+
+    CH = ""
+
+End If
+
+
+If Range("B1") Then GoTo Available_Email
+DAM_LT_60DAYS.Select
+
+If Range("H1").Value <> 0 Then
+
+    VBA.MsgBox "(" & Range("H1").Value & ") - EMAIL ID'S NOT FOUND, UPDATE BEFORE SENDING MAILS!!", vbExclamation, "Check Emails"
+
+    Exit Sub
+
+End If
+
+Available_Email:
+
+If Unique_List_Dammam.Range("A2") = "" Then
+     
+    
+    Dim ol As Outlook.Application
+    Dim mi As Outlook.MailItem
+    Dim rng As Range
+    
+    No_Email_Dammam.Visible = xlSheetVisible
+    No_Email_Dammam.Select
+    Set rng = Range("A1").CurrentRegion
+    Set ol = New Outlook.Application
+    Set mi = ol.CreateItem(olMailItem)
+    With mi
+        .Display
+        .To = myToEmail
+        .CC = myCCEmail & ";" & CH
+        .Subject = "No Email-ID's available for Discrepancy Report "
+        .HTMLBody = WorkingFile.Range("Y25").Value & vbNewLine & RangetoHTML(rng) & mi.HTMLBody
+        
+                
+    If WelcomePage.Range("B40") = "Production" Then
+        .Send
+    Else
+        
+    End If
+    
+    End With
+
+DAM_LT_60DAYS.Select
+
+Exit Sub
+
+End If
+
+
+Call Entry_Point
+
+Dim i As Long
+Dim LastRow As Long
+Dim myValue As Double
+Dim myName As String
+Const StarRow As Byte = 2
+'Dim ol As Outlook.Application
+'Dim mi As Outlook.MailItem
+Dim Doc As Word.Document
+'Dim rng As Range
+Dim shp As InlineShape
+
+LastRow = Unique_List_Dammam.Range("A" & (StarRow - 1)).End(xlDown).Row
+
+Unique_List_Dammam.Visible = xlSheetVisible
+
+
+Unique_List_Dammam.Select
+
+For i = StarRow To LastRow
+    Unique_List_Dammam.Select
+    myValue = Range("A" & i).Value
+    myName = Range("B" & i).Value
+    Set ol = New Outlook.Application
+    Set mi = ol.CreateItem(olMailItem)
+    
+With mi
+    .Display
+    Set Doc = mi.GetInspector.WordEditor
+    .To = Range("C" & i).Value
+    .CC = myToEmail
+    .Subject = "Discrepancy Outstanding Report - " & myName
+
+On Error GoTo ErrorHandle
+    .Attachments.Add Fol_GenerateReport & myValue & ".xlsx"
+    .Attachments.Add Fol_Letter & "ACCEPTANCE LETTER.docx"
+    .Attachments.Add Fol_Letter & "REFUSAL LETTER.docx"
+End With
+    
+    Set shp = Doc.Range(0, 0).InlineShapes.AddPicture(Fol_Letter & "outstanding letter.png")
+    
+    
+    shp.LockAspectRatio = msoTrue
+    shp.Width = 1000
+
+    If WelcomePage.Range("B40") = "Production" Then
+    mi.Send
+    Else
+        '.Close olDiscard
+    End If
+    
+Next i
+
+Unique_List_Dammam.Visible = xlSheetHidden
+
+Call Exit_Point
+
+DAM_LT_60DAYS.Select
+
+If Range("B1") And Range("H1") <> 0 Then
+Call Entry_Point
+    No_Email_Dammam.Visible = xlSheetVisible
+    No_Email_Dammam.Select
+       
+    Set rng = Range("A1").CurrentRegion
+    Set ol = New Outlook.Application
+    Set mi = ol.CreateItem(olMailItem)
+    With mi
+        .Display
+        .To = myToEmail
+        .CC = myCCEmail & ";" & CH
+        .Subject = "Reminder for Email Id's"
+        .HTMLBody = WorkingFile.Range("X25").Value & vbNewLine & RangetoHTML(rng) & mi.HTMLBody
+        
+                
+    If WelcomePage.Range("B40") = "Production" Then
+        .Send
+    Else
+        '.Close olDiscard
+    End If
+    
+    End With
+
+End If
+
+Call Exit_Point
+
+DAM_LT_60DAYS.Select
+
+Exit Sub
+
+ErrorHandle:
+    
+    mi.Close olDiscard
+    Unique_List_Dammam.Visible = xlSheetHidden
+    Call Exit_Point
+    DAM_LT_60DAYS.Select
+    MsgBox "Please generate Files First Before Sending Mails", vbCritical, "Message!"
+
+End Sub
+
+
+
+
+
+Sub Email_Jeddah_Customer_LT60()
+
+Dim CH As String
+Dim myToEmail As String
+Dim myCCEmail As String
+myToEmail = WorkingFile.Range("T6").Value
+myCCEmail = WorkingFile.Range("T7").Value
+
+If Range("A3") Then
+
+    CH = WorkingFile.Range("S8").Value
+Else
+
+    CH = ""
+
+End If
+
+
+If Range("B1") Then GoTo Available_Email
+JED_LT_60DAYS.Select
+
+If Range("H1").Value <> 0 Then
+
+    VBA.MsgBox "(" & Range("H1").Value & ") - EMAIL ID'S NOT FOUND, UPDATE BEFORE SENDING MAILS!!", vbExclamation, "Check Emails"
+
+    Exit Sub
+
+End If
+
+Available_Email:
+
+If Unique_List_Jeddah.Range("A2") = "" Then
+     
+    
+    Dim ol As Outlook.Application
+    Dim mi As Outlook.MailItem
+    Dim rng As Range
+    
+    No_Email_Jeddah.Visible = xlSheetVisible
+    No_Email_Jeddah.Select
+    Set rng = Range("A1").CurrentRegion
+    Set ol = New Outlook.Application
+    Set mi = ol.CreateItem(olMailItem)
+    With mi
+        .Display
+        .To = myToEmail
+        .CC = myCCEmail & ";" & CH
+        .Subject = "No Email-ID's available for Discrepancy Report "
+        .HTMLBody = WorkingFile.Range("Y25").Value & vbNewLine & RangetoHTML(rng) & mi.HTMLBody
+        
+                
+    If WelcomePage.Range("B40") = "Production" Then
+        .Send
+    Else
+        '.Close olDiscard
+    End If
+    
+    End With
+
+JED_LT_60DAYS.Select
+Exit Sub
+
+End If
+
+
+Call Entry_Point
+
+Dim i As Long
+Dim LastRow As Long
+Dim myValue As Double
+Dim myName As String
+Const StarRow As Byte = 2
+'Dim ol As Outlook.Application
+'Dim mi As Outlook.MailItem
+Dim Doc As Word.Document
+'Dim rng As Range
+Dim shp As InlineShape
+
+LastRow = Unique_List_Jeddah.Range("A" & (StarRow - 1)).End(xlDown).Row
+
+Unique_List_Jeddah.Visible = xlSheetVisible
+
+
+Unique_List_Jeddah.Select
+
+For i = StarRow To LastRow
+    Unique_List_Jeddah.Select
+    myValue = Range("A" & i).Value
+    myName = Range("B" & i).Value
+    Set ol = New Outlook.Application
+    Set mi = ol.CreateItem(olMailItem)
+    
+With mi
+    .Display
+    Set Doc = mi.GetInspector.WordEditor
+    .To = Range("C" & i).Value
+    .CC = myToEmail
+    .Subject = "Discrepancy Outstanding Report - " & myName
+
+On Error GoTo ErrorHandle
+    .Attachments.Add Fol_GenerateReport & myValue & ".xlsx"
+    .Attachments.Add Fol_Letter & "ACCEPTANCE LETTER.docx"
+    .Attachments.Add Fol_Letter & "REFUSAL LETTER.docx"
+End With
+    
+    Set shp = Doc.Range(0, 0).InlineShapes.AddPicture(Fol_Letter & "outstanding letter.png")
+    
+    
+    shp.LockAspectRatio = msoTrue
+    shp.Width = 1000
+
+    If WelcomePage.Range("B40") = "Production" Then
+    mi.Send
+    Else
+        '.Close olDiscard
+    End If
+    
+Next i
+
+Unique_List_Jeddah.Visible = xlSheetHidden
+
+Call Exit_Point
+
+JED_LT_60DAYS.Select
+
+If Range("B1") And Range("H1") <> 0 Then
+Call Entry_Point
+    No_Email_Jeddah.Visible = xlSheetVisible
+    No_Email_Jeddah.Select
+       
+    Set rng = Range("A1").CurrentRegion
+    Set ol = New Outlook.Application
+    Set mi = ol.CreateItem(olMailItem)
+    With mi
+        .Display
+        .To = myToEmail
+        .CC = myCCEmail & ";" & CH
+        .Subject = "Reminder for Email Id's"
+        .HTMLBody = WorkingFile.Range("X25").Value & vbNewLine & RangetoHTML(rng) & mi.HTMLBody
+        
+                
+    If WelcomePage.Range("B40") = "Production" Then
+        .Send
+    Else
+        '.Close olDiscard
+    End If
+    
+    End With
+
+End If
+
+Call Exit_Point
+
+JED_LT_60DAYS.Select
+
+Exit Sub
+
+ErrorHandle:
+    
+    mi.Close olDiscard
+    Unique_List_Jeddah.Visible = xlSheetHidden
+    Call Exit_Point
+    JED_LT_60DAYS.Select
+    MsgBox "Please generate Files First Before Sending Mails", vbCritical, "Message!"
+
+End Sub
+
+
+
+
+Sub Refresh_All()
+
+' Refresh_All Macro
+
+    ActiveWorkbook.RefreshAll
+
+    
+End Sub
+
+
+
